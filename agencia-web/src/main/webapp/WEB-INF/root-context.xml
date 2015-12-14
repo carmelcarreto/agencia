@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="
         http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/mvc 
         http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/context 
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/data/jpa
+        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+    
     <!--Configura el parquete con las clases que reciben las peticiones del cliente (Controllers) -->
     <context:component-scan base-package="com.carmelcarreto.agencia"/>
     
@@ -18,10 +23,49 @@
     <!--Resuelve la ubicacion de la vista -->
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.UrlBasedViewResolver">
-        <property name="viewClass"
-                  value="org.springframework.web.servlet.view.JstlView" />
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
         <property name="prefix" value="/WEB-INF/jsp/" />
         <property name="suffix" value=".jsp" />
     </bean>
-
+    
+    <!--Conexion a la base de datos-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/agencia?zeroDateTimeBehavior=convertToNull"/>
+        <property name="password" value="admin"/>
+        <property name="username" value="root"/>
+    </bean>
+    
+    <!--Configuracion que tipo de base de datos y que dialecto se genera-->
+    <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="MYSQL"/>
+        <property name="showSql" value="true"/>
+        <property name="generateDdl" value="true"/>
+        <property name="databasePlatform" value="org.hibernate.dialect.MySQL5Dialect"/>
+    </bean>
+    
+    <!--componente que crea el entity manager factory -Configuracion Container Managed-->
+    <bean id="entityManagerFactory" class = "org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"    >
+        <property name="dataSource" ref="dataSource" />
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+        <property name="packagesToScan" value="com.carmelcarreto.agencia.model"/>
+        
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.format_sql">true</prop>
+                <!--estrategia de creacion de tablas y campos-->
+                <prop key="hibernate.hbm2ddl.auto">create-drop</prop> <!-- create | create-drop | validate | update -->
+                <!--estrategia de nombrado de tablas y campos-->
+                <prop key="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <!--activa el uso de repositorios de Spring Data-->
+    <jpa:repositories base-package="com.carmelcarreto.agencia.repository" />
+    
+    <!--bean maneja las transacciones para repositorios jpa-->
+    <bean id="transactionManager" class = "org.springframework.orm.jpa.JpaTransactionManager"    >
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
 </beans>

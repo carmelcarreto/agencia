@@ -10,16 +10,7 @@
         
         <table style="width:100%">
             <tr>
-                <td><a href="#" >Vuelos</a></td>
-            </tr>
-            <tr>
-                <td><a href="#">Paquetes</a></td>
-            </tr>
-            <tr>
-                <td><a href="#">Reservacion de Hoteles</a></td>
-            </tr>
-            <tr>
-                <td> <a href="#">Reservacion de Autos</a></td>
+                <td><a href="/user" >Usuarios</a></td>
             </tr>
         </table>
     </body>
